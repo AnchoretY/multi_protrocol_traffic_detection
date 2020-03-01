@@ -54,8 +54,8 @@ DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
         |   MX   |                           邮件交换                           | 15   |              |
         |  TXT   |                           文本记录                           | 16   |   隐蔽信道   |
         |  AAAA  |                      由域名获得IPv6地址                      | 28   |              |
-        |  NSEC  |                             NSEC                             |      |   NSEC枚举   |
-        | NSEC3  |                            NSEC3                             |      |              |
+        |  NSEC  |                             NSEC                             | 47   |   NSEC枚举   |
+        | NSEC3  |                            NSEC3                             | 50   |              |
      |  IXFR  |                         增量区域传送                         | 251  | 区域传送攻击 |
         |  AXFR  |                       传送整个区的请求                       | 252  | 区域传送攻击 |
      |  ANY   |                 传回所有服务器已知类型的记录                 | 255  |   放大攻击   |
@@ -160,4 +160,5 @@ DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
 1. [《DataCon大赛DNS方向writeup及总结反思》](https://www.anquanke.com/post/id/179680)清华大学在DataCon DNS恶意流量检测上的解题方案，带详细过程。
 2. [ Datacon DNS攻击流量识别 内测笔记]([http://momomoxiaoxi.com/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/2019/04/24/datacondns1/](http://momomoxiaoxi.com/数据分析/2019/04/24/datacondns1/)) 具有非常详细的攻击过程、表现分析以及过滤表达式的书写。
 3. [DNS参数对照表](https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml)
+4.  [DATACON 2019大数据安全分析比赛WRITEUP收集](https://ixyzero.com/blog/archives/4473.html)
 
