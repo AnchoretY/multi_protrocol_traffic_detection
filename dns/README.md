@@ -23,7 +23,7 @@ DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
    |   TC（1bit）   |                         表示可截断的                         |                  |
    |   RD（1bit）   |                         表示期望递归                         |                  |
    |   RA（1bit）   |                         表示可用递归                         |                  |
-   | rcode（4bit）  | 表示返回码，0表示没有差错，**3表示域名不存在**，2表示服务器错误（Server Failure） |    投毒、Ddos    |
+   | rcode（4bit）  | 返回码，0表示没有差错，2表示服务器错误（Server Failure），**3表示域名不存在**，4表示功能未实现,5拒绝 |    投毒、Ddos    |
 
    3. **数量字段（总共8字节）**
 
@@ -55,17 +55,17 @@ DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
         |  TXT   |                           文本记录                           | 16   |   隐蔽信道   |
         |  AAAA  |                      由域名获得IPv6地址                      | 28   |              |
         |  NSEC  |                             NSEC                             | 47   |   NSEC枚举   |
-        | NSEC3  |                            NSEC3                             | 50   |              |
-     |  IXFR  |                         增量区域传送                         | 251  | 区域传送攻击 |
-        |  AXFR  |                       传送整个区的请求                       | 252  | 区域传送攻击 |
-     |  ANY   |                 传回所有服务器已知类型的记录                 | 255  |   放大攻击   |
+		| NSEC3  |                            NSEC3                             | 50   |              |
+       |  IXFR  |                         增量区域传送                         | 251  | 区域传送攻击 |
+      |  AXFR  |                       传送整个区的请求                       | 252  | 区域传送攻击 |
+       |  ANY   |                 传回所有服务器已知类型的记录                 | 255  |   放大攻击   |
    
    - **查询类**
    
      通常为1，表明是Internet数据。
    
 2. **资源记录区域**（**包括回答区域，授权区域和附加区域**）
-   
+  
    ![image](https://raw.githubusercontent.com/AnchoretY/images/master/blog/image.zz04rjm1a8c.png)
    
    &emsp;&emsp;该区域有三个，但格式都是一样的。这三个区域分别是：回答区域，授权区域和附加区域
@@ -124,7 +124,7 @@ DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
    **检测角度**：一般使用**TXT**和A类进行传输。
    
 4. ### DNS区域传送利用
-   
+  
    &emsp;一般DNS区域传送操作只在网络里真的有备用域名DNS服务器时才有必要用到，但许多DNS服务器却被错误地配置成只要有client发出请求，就会向对方提供一个zone数据库的详细信息，即**允许不受信任的因特网用户执行DNS区域传送操作。** 
    
    **危害:** 便于快速判断出某个特定区域的所有主机，获取域信息，如网络拓扑结构、服务器ip地址，为攻击者的入侵提供大量敏感信息。
@@ -137,7 +137,7 @@ DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
    **检测角度**：查询类型值为251(IFXR，增量区域传送)、252（AFXR，整体区域传送）
    
 5. ### NSEC枚举
-   
+  
    &emsp;**&emsp;在未使用NSEC3的NSEC DNS服务器中**，若查询区文件中不存在的域名，会以NSEC记录的形式提供靠近其的最近的下一条域名，这就使攻击者可以来重复获取下一个dns记录，从而达到泄漏的作用。
    
    **检测角度**：获取全部查询类型为NSEC类型的数据
@@ -158,7 +158,7 @@ DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
 ### 资料
 
 1. [《DataCon大赛DNS方向writeup及总结反思》](https://www.anquanke.com/post/id/179680)清华大学在DataCon DNS恶意流量检测上的解题方案，带详细过程。
-2. [ Datacon DNS攻击流量识别 内测笔记]([http://momomoxiaoxi.com/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/2019/04/24/datacondns1/](http://momomoxiaoxi.com/数据分析/2019/04/24/datacondns1/)) 具有非常详细的攻击过程、表现分析以及过滤表达式的书写。
+2. [ Datacon DNS攻击流量识别 内测笔记](http://momomoxiaoxi.com/数据分析/2019/04/24/datacondns1/) 具有非常详细的攻击过程、表现分析以及过滤表达式的书写。
 3. [DNS参数对照表](https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml)
 4.  [DATACON 2019大数据安全分析比赛WRITEUP收集](https://ixyzero.com/blog/archives/4473.html)
 
