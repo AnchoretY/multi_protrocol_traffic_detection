@@ -10,13 +10,26 @@
 
 1. #### tcpdump
 
-   
+   &emsp;&emsp;最经典的流量**抓取**工具，采用即使输出的方式进行流量抓取，可处理的文件很大。
 
-### 流量解析
+2. #### Tshark
 
-1. #### tshark
+   &emsp;&emsp;最常用的一种流量**抓取、解析**工具，进行pcap文件处理时要将整个文件读入内存，因此太大的文件很难进行解析。
 
-   wireshark的命令行版本。
+> 二者在实际使用中的主要区别是：
+>
+> 1. 数据包深度解析只能使用tshark
+> 2. 对于大规模的流量抓取，文件过滤只能使用tcmpdump
+
+3. #### editcap
+
+   &emsp;&emsp;wireshark中的用来过滤pcap文件内容、重新进行pcap文件重组切分常用的工具，通常配合tshark使用。
+
+4. #### capinfos
+
+   &emsp;&emsp;Wireshark中命令行版本用来统计pcap文件中流量的统计信息的工具，通常与tshark配合使用。
+
+ 
 
 ### IDS
 
