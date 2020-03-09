@@ -1,4 +1,6 @@
-tshark主要功能包括：
+# Tshark
+
+**tshark主要功能包括**：
 
 1. 抓包
 2. 包解析
@@ -32,6 +34,30 @@ tshark主要功能包括：
 - -E separator=, 指定分割符，/t是tab，/s是一格空格
 - -E quote=n 指定是否对字段用引号，d是双引号，s是单引号，n是不用
 - -E occurrence=f 多值时是否保留，f是第一个值，l是最后一个值，a是所有值都列出，默认全部
+
+#### 其他常用参数
+
+- -q 用来只显示统计信息，不显示各个包的信息  一般与-z联合使用
+
+- -z 使用统计功能
+
+  - http,stat 计算HTTP统计信息，显示的值是HTTP状态代码和HTTP请求方法.
+
+  - http,tree 计算HTTP包分布。 显示的值是HTTP请求模式和HTTP状态代码的个数等信息。
+
+    ![image](https://raw.githubusercontent.com/AnchoretY/images/master/blog/image.s22apch9cz.png)
+
+  - http_req,tree    计算每个HTTP请求的统计
+
+  - dns,tree   计算DNS包的统计信息，包括各种rcode、opcode、响应包返回包个数等
+
+    ![image](https://raw.githubusercontent.com/AnchoretY/images/master/blog/image.97adlcjj5j4.png)
+
+  - io,phs 分层级统计在捕获文件中找到的所有协议
+
+  -  ip_hosts,tree 显示每个IP地址并统计每个IP地址所占流量的比率
+
+    ![image](https://raw.githubusercontent.com/AnchoretY/images/master/blog/image.tagnbhghr7h.png)
 
 
 
@@ -77,6 +103,12 @@ tshark -r q1_final.pcap -T fields -e frame.number -e frame.time_relative -e ip.s
 ~~~
 
 
+
+
+
+
+
+liunx tshark中文手册：http://linux.51yip.com/search/tshark
 
 
 
