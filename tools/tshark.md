@@ -33,7 +33,7 @@
 
 - -R 设置**读取（显示）过滤表达式（read filter expression）**。
 
-  > 注意:读取（显示）过滤表达式的语法和底层相关的抓包过滤表达式语法不相同，它的语法表达要丰富得多，请参考http://www.ethereal.com/docs/dfref/和http://www.ethereal.com/docs/man-pages/ethereal-filter.4.html。
+  > 注意:读取（显示）过滤表达式的语法和底层相关的抓包过滤表达式语法不相同，它的语法表达要丰富得多，请参考http://www.ethereal.com/docs/dfref/ 和 http://www.ethereal.com/docs/man-pages/ethereal-filter.4.html。
 
 - -T fields 输出格式，选fields按字段，也可以选json等其他格式，需结合-e 及 -E使用
 
