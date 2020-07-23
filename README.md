@@ -56,10 +56,9 @@
   
 2. #### whois
   &emsp;&emsp;进行域名whois查询的Python工具包，该软件包可以很方便的查询到域名的注册者信息、域名注册时间等，返回信息格式为Dict，具体使用方式如下：
-~~~
+~~~Python
   # 安装 pip install python-whois
   import whois.whois as whois
   response = whois("baidu.com")
   print(response.registrar)
-    
 ~~~
