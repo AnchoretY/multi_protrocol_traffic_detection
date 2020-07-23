@@ -1,6 +1,6 @@
 ### urllib.parse
 1. urlparse
-  &emsp;&emsp;将完整的url解析为<scheme>://<netloc>/<path>;<params>?<query>#<fragment>六个部分。
+  &emsp;&emsp;将完整的url解析为`<scheme>://<netloc>/<path>;<params>?<query>#<fragment>`六个部分。
 ~~~Python
   from urllib.parse import urlparse
   print(urlparse("https://flashgene.com/archives/102149.html?a=1&b=2#sfdf"))
