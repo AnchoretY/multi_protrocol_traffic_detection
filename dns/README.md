@@ -1,5 +1,5 @@
 # DNS
-
+![image](https://raw.githubusercontent.com/AnchoretY/images/master/blog/image.xux6fd9vt4e.png)
 **端口：53**
 
 DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
