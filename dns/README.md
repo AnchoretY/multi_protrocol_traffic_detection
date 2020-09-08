@@ -89,6 +89,9 @@ DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
       - **资源数据**
    
         &emsp;&emsp;该字段是一个可变长字段，表示按照查询段的要求返回的相关资源记录的数据。可以是Address（表明查询报文想要的回应是一个IP地址）或者CNAME（表明查询报文想要的回应是一个规范主机名）等。
+	
+## 数据拓展
+  &emsp;&emsp;DNS常用的拓展数据及其作用【[DNS数据拓展](./dns_extension.md)】
 
 ## DNS常见的攻击
 
