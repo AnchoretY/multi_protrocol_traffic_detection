@@ -1,4 +1,6 @@
 import os
+import pandas as pd
+from joblib import Parallel,delayed
 
 def http_pcap2csv(input_file):
     """
@@ -84,3 +86,23 @@ def http_pcap2csv(input_file):
     
     print("Completed Conversation merge！")
     print("Extract {} http info to{}!".format(input_file,output_file))
+
+
+
+def floder_pcap_analysis_http(path,n_jobs=5):
+    """
+        对整个文件夹中的pcap文件中http流量进行多进程解析
+        Parameters:
+        --------------------------
+            path: pcap文件存储路径
+            n_jobs: 进程数
+    """
+    filename_l = os.listdir(path)
+    file_l = []
+    for filename in filename_l:
+        if filename[0]!=".":
+            file = os.path.join(path,filename)
+            file_l.append(file)
+
+    Parallel(n_jobs=n_jobs)(delayed(http_pcap2csv)(file) for file in file_l)
+    
