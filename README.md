@@ -23,7 +23,7 @@
 > 1. 数据包深度解析只能使用tshark
 > 2. 对于大规模的流量抓取，文件过滤只能使用tcmpdump
 
-3. #### editcap
+3. #### [editcap](tools/editcap.md)
 
    &emsp;&emsp;wireshark中的用来过滤pcap文件内容、重新进行pcap文件重组切分常用的工具，通常配合tshark使用。
 
