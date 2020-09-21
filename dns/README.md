@@ -2,8 +2,8 @@
 ![image](https://raw.githubusercontent.com/AnchoretY/images/master/blog/image.xux6fd9vt4e.png)
 **端口：53**
 
-DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html
-DNS报文解析：./dns_traffic_analysis.md
+DNS报文格式：https://jocent.me/2017/06/18/dns-protocol-principle.html  
+DNS报文解析：[](./dns_traffic_analysis.md)
 
 ![](https://github.com/AnchoretY/images/blob/master/blog/DNS%E6%8A%A5%E6%96%87%E6%95%B4%E4%BD%93%E6%A0%BC%E5%BC%8F.png?raw=true)
 
