@@ -1,14 +1,17 @@
 import pyshark
 import os
+import time
 import pandas as pd
 from joblib import Parallel,delayed
 
 def pyshark_parser(input_file,output_file):
-    print("Start {} http traffic analysis...".format(input_file))
-    capture = pyshark.FileCapture(input_file,keep_packets=False,display_filter='http and http.content_length<5000')
+    start_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    print("[{}]\tStart {} http traffic analysis...".format(start_time,input_file))
+    capture = pyshark.FileCapture(input_file,keep_packets=False,display_filter='http and (tcp.reassembled.length<100000 or not tcp.reassembled.length)')
     fo = open(output_file, "w")
 
     column_name_list = [
+        'timestamp',
         'request',
         'http_version',
         'src_ip',
@@ -26,12 +29,14 @@ def pyshark_parser(input_file,output_file):
         'content_type',
         'content_length',
         'response_code',
-        'file_data'
+        'file_data',
+        'highest_layer'
     ]
 
     fo.write("\t".join(column_name_list)+'\n')
 
     for pkt in capture:
+        timestamp = ""
         src_ip = ""
         dst_ip = ""
         src_port = ""
@@ -53,7 +58,11 @@ def pyshark_parser(input_file,output_file):
         file_data = ""
         content_length = ""
         response_code = ""
+        highest_layer = ""
         
+        
+        
+        timestamp = pkt.sniff_timestamp
         if "ip" == pkt.layers[1]._layer_name:
             src_ip = pkt.ip.src
             dst_ip = pkt.ip.dst
@@ -66,9 +75,9 @@ def pyshark_parser(input_file,output_file):
         nextseq = pkt.tcp.nxtseq
         ack = pkt.tcp.ack
            
+            
         if hasattr(pkt.http, "request_version"):
             http_version = pkt.http.request_version
-            
         if hasattr(pkt.http, "request_uri"):
             uri = pkt.http.request_uri
         if hasattr(pkt.http, "response"):
@@ -91,16 +100,20 @@ def pyshark_parser(input_file,output_file):
             content_length = pkt.http.content_length
         if hasattr(pkt.http, "response_code"):
             response_code = pkt.http.response_code
+        if hasattr(pkt, "highest_layer"):
+            highest_layer = pkt.highest_layer
             
         # 解析结果写入文件
-        data_list = [request,http_version,src_ip, dst_ip, src_port, dst_port,nextseq,ack,request_method,host,uri,user_agent,cookie,referer,content_type,content_length,response_code,file_data]
+        data_list = [timestamp,request,http_version,src_ip, dst_ip, src_port, dst_port,nextseq,ack,request_method,host,uri,user_agent,cookie,referer,content_type,content_length,response_code,file_data,highest_layer]
         fo.write("\t".join(data_list)+'\n')
     fo.close()
-    print("{} analysis success!tmp file save to {}".format(input_file,output_file))
+    end_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    print("[{}]\tanalysis success!tmp file save to {}".format(end_time,input_file,output_file))
 
     
 def merge_response_request(input_file,output_file):
-    print("Start merge requerst and response to a Conversation...")
+    start_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    print("[{}]\tStart merge requerst and response to a Conversation...".format(start_time))
     # 请求包响应包合并成一个会话
     df = pd.read_csv(open(input_file,errors='ignore'),sep='\t')
     
@@ -111,7 +124,7 @@ def merge_response_request(input_file,output_file):
     df_request = df_request.drop(axis=1,columns=['request','ack','response_code'])
 
     # 获取响应报文，srcip、dstip、srcport、dstport对换，tcp.ack换成tcp.nxtseq，准备与请求进行匹配
-    df_response = df[df["request"]==0][["src_ip","dst_ip","src_port","dst_port","ack","response_code","content_type","content_length"]]
+    df_response = df[df["request"]==0][["src_ip","dst_ip","src_port","dst_port","ack","response_code","content_type","content_length","file_data"]]
     df_response = df_response.rename(columns={
         "src_ip":"dst_ip",
         "dst_ip":"src_ip",
@@ -119,16 +132,18 @@ def merge_response_request(input_file,output_file):
         "dst_port":"src_port",
         "ack":"next_seq",
         "content_type":"response_conetent_type",
-        "content_length":"response_content_length"
+        "content_length":"response_content_length",
+        "file_data":"response_data"
     })
 
     df_result = pd.merge(df_request,df_response,on=["src_ip","dst_ip","src_port","dst_port","next_seq"],how='left')
     df_result = df_result.drop(axis=1,columns=['next_seq'])
 
     df_result.to_csv(output_file,index=False,sep='\t')
-
-    print("Completed Conversation merge！")
-    print("Extract {} http info to{}!".format(input_file,output_file))
+    
+    end_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    print("[{}]\tCompleted Conversation merge！".format(end_time))
+    print("[{}]\tExtract {} http info to{}!".format(end_time,input_file,output_file))
     
     return df_result
 
