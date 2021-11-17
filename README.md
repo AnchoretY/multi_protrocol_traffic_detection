@@ -2,9 +2,9 @@
 
 #### 主要关注的几种协议：
 
-  1. [HTTP](./http)
-  2. [DNS](./dns)
-  3. [HTTPS](//https)
+    1. [HTTP](./http)
+    2. [DNS](./dns)
+    3. [HTTPS](//https)
 
 ## 常用工具
 
@@ -27,9 +27,27 @@
 
    &emsp;&emsp;wireshark中的用来过滤pcap文件内容、重新进行pcap文件重组切分常用的工具，通常配合tshark使用。
 
-4. #### capinfos
+4. #### [capinfos](tools/capinfos.md)
 
    &emsp;&emsp;Wireshark中命令行版本用来统计pcap文件中流量的统计信息的工具，通常与tshark配合使用。
+
+
+
+### 流量修改工具
+
+1. Scapy
+
+
+
+### NetFlow特征提取工具
+
+1. #### CiCFlowMeter
+
+   由加拿大安全研究所提出的一种flow特征提取框架，能够提取80余种特征，本身由java编写，也有python版本，但是python版本bug较多。
+
+2. #### NFStream
+
+   一个灵活的网络流量分析框架，比CICFlowMeter更加灵活，好用。
 
  
 
@@ -45,7 +63,7 @@
 
    &emsp;&emsp;支持多线程、处理速度更快、规则编写更加灵活的snort，能够编写一些Snort不能编写的复杂规则。
 
-3. #### Bro
+3. #### [Bro(Zeek)](./ids/zeek.md)
 
    &emsp;&emsp;**使用脚本而不是规则来进行检测**，**输出不仅仅是告警，可以是任何定义好的类型的流量日志**，虽然Bro是一款IDS但是**更常用于记录网络行为**，因为使用Bro收集元数据不仅比抓包更有效地存储信息，还能以数据包捕获无法实现的方式进行搜索、索引、查询和报告。
    
