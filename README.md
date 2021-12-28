@@ -2,15 +2,15 @@
 
 #### 主要关注的几种协议：
 
-    1. [HTTP](./http)
-    2. [DNS](./dns)
-    3. [HTTPS](//https)
+1. [HTTP](./http)
+2. [DNS](./dns)
+3. [HTTPS](./https)
 
 ## 常用工具
 
-### 流量抓取 
+### 流量抓取
 
-1. #### tcpdump
+1. #### [tcpdump](tools/tcpdump.md)
 
    &emsp;&emsp;最经典的流量**抓取**工具，采用即使输出的方式进行流量抓取，可处理的文件很大。
 
@@ -31,7 +31,9 @@
 
    &emsp;&emsp;Wireshark中命令行版本用来统计pcap文件中流量的统计信息的工具，通常与tshark配合使用。
 
+5. [tcpflow](tools/tcpflow.md)
 
+   
 
 ### 流量修改工具
 
@@ -47,7 +49,11 @@
 
 2. #### NFStream
 
-   一个灵活的网络流量分析框架，比CICFlowMeter更加灵活，好用。
+   一个灵活的网络流量分析框架，比CICFlowMeter更加灵活，好用，默认支持，并可以支持使用NFPlugin。
+
+3. Zeek
+
+   Zeek提供了已连接为单位的流量分析引擎，可以做NetFlow分析，由于是基于C语言的工具，理论上效率要更高。
 
  
 

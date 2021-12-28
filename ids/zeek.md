@@ -534,13 +534,103 @@ type Log::PolicyHook: hook(rec: any, id: ID, filter: Filter);
 
 总结统计框架主要围绕三个抽象对象。
 
-- **Observation**
-- **Reducer**
-- **Sumstat**：
+- **Observation**：一个单点的数据，Obversation本身就有许多组件，
+- **Reducer**：限定应用计算的范围，将计算范围从全部obversation选定为一个较小的集合。
+- **Sumstat**：最终通过定义Sumstat来限定一个时间间隔内的reducers被收集计算，这个集合成为epoch。如果超过了阈值，将会应用一个回调函数事件，这个回调函数事件可以访问一个epoch的每一个key-value。
+
+## 实例
+
+### 打印连接数量
 
 
 
+```shell
+@load base/frameworks/sumstats
 
+event connection_established(c: connection)
+    {
+    # 1.创建一个Obversation
+    # 由于这个Obversation是全局变量，因此为空
+    # 每个连接的Obversation的记做1.
+    SumStats::observe("conn established", 
+                      SumStats::Key(), 
+                      SumStats::Observation($num=1));
+    }
+
+event zeek_init()
+    {
+    # 2.创建Reducer
+    # $stream参数：将reducer关联到"conn established" observation stream上
+    # $apply参数：将加法计算应用到obversation上
+    local r1 = SumStats::Reducer($stream="conn established", 
+                                 $apply=set(SumStats::SUM));
+
+    # 3.创建最终的SumStat
+    # $name: 指定sumStat名称
+    # $epoch: 每隔一分钟收集一次数据
+    # $reducers: 关联reducer
+    # $epoch_result: 每次数据收集完成后要执行的操作函数关联
+    SumStats::create([$name = "counting connections",
+                      $epoch = 1min,
+                      $reducers = set(r1),
+                      $epoch_result(ts: time, key: SumStats::Key, result: SumStats::Result) =
+                        {
+                        print fmt("Number of connections established: %.0f", result["conn established"]$sum);
+                        }]);
+    }
+```
+
+
+
+### 简单的扫描检测
+
+```shell
+@load base/frameworks/sumstats
+
+# We use the connection_attempt event to limit our observations to those
+# which were attempted and not successful.
+event connection_attempt(c: connection)
+    {
+    # Make an observation!
+    # This observation is about the host attempting the connection.
+    # Each established connection counts as one so the observation is always 1.
+    SumStats::observe("conn attempted", 
+                      SumStats::Key($host=c$id$orig_h), 
+                      SumStats::Observation($num=1));
+    }
+
+event zeek_init()
+    {
+    # Create the reducer.
+    # The reducer attaches to the "conn attempted" observation stream
+    # and uses the summing calculation on the observations. Keep
+    # in mind that there will be one result per key (connection originator).
+    local r1 = SumStats::Reducer($stream="conn attempted", 
+                                 $apply=set(SumStats::SUM));
+
+    # Create the final sumstat.
+    # This is slightly different from the last example since we're providing
+    # a callback to calculate a value to check against the threshold with 
+    # $threshold_val.  The actual threshold itself is provided with $threshold.
+    # Another callback is provided for when a key crosses the threshold.
+    SumStats::create([$name = "finding scanners",
+                      $epoch = 5min,
+                      $reducers = set(r1),
+                      # Provide a threshold.
+                      $threshold = 5.0,
+                      # Provide a callback to calculate a value from the result
+                      # to check against the threshold field.
+                      $threshold_val(key: SumStats::Key, result: SumStats::Result) =
+                        {
+                        return result["conn attempted"]$sum;
+                        },
+                      # Provide a callback for when a key crosses the threshold.
+                      $threshold_crossed(key: SumStats::Key, result: SumStats::Result) =
+                        {
+                        print fmt("%s attempted %.0f or more connections", key$host, result["conn attempted"]$sum);
+                        }]);
+    }
+```
 
 #### 【参考文献】
 
