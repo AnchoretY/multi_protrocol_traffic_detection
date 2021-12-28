@@ -2,7 +2,7 @@
 
 ### 概述
 
-NFStream是一个快速进行**在线和离线**pcap分析的网络流量处理框架，可以快速灵活的将pcap文件转化为flow为单位的数据供流量分析人员进行分析。其中共包含三种基本数据结构：
+NFStream是一个快速进行**在线和离线**pcap分析的**Python**网络流量处理框架，可以快速灵活的将pcap文件转化为flow为单位的数据供流量分析人员进行分析。其中共包含四种基本数据结构：
 
 - NFStream：驱动程序流程，负责设置整体工作流程，主要是并行计量流程的编排。
 - NFPlugin：NFPlugin是扩展NFStream的主要类，用于自定义用户定义的分析功能。
@@ -76,7 +76,16 @@ my_streamer = NFStreamer(source="facebook.pcap",
 
 ### NFlow
 
-NFlow是NFStream中的流表示，它包含根据NFStreamer中配置的全部信息。其中共包含：
+NFlow是NFStream中的流表示，它包含根据NFStreamer中配置的全部信息。
+
+**使用实例**
+
+~~~python
+for flow in my_streamer:
+    print(flow.src_ip)
+~~~
+
+其中共包含：
 
 - NFlow Core特征：核心功能，无论NFStream中如何指定一定会包含的特征。
 - 隧道解码功能特征：需要NFStream中将设置属性`DECODE_TUNNELS=TRUE`才flow中才会计算该类特征。
@@ -198,5 +207,167 @@ NFlow是NFStream中的流表示，它包含根据NFStreamer中配置的全部信
 |    `splt_ps`     | `list` | N（splt_analysis=N）第一个流数据包大小列表（在没有数据包时取决于accounting_mode，-1）。 |
 |  `splt_piat_ms`  | `list` | N（splt_analysis=N）第一个流数据包到达时间列表（第一个数据包总是0，没有数据包时总是-1）。 |
 
+### NFPacket
+
+NFPacket是NFStream中的包表示，包含网络数据包中的基本信息。其中包含的包信息包括：
+
+| `time`           | `int`   | 以毫秒为单位的数据包时间戳。                          |
+| ---------------- | ------- | ----------------------------------------------------- |
+| `delta_ime`      | `int`   | 使用之前的流包的Delta时间（毫秒）。                   |
+| `raw_size`       | `int`   | 链接层数据包大小。                                    |
+| `ip_size`        | `int`   | IP数据包大小。                                        |
+| `transport_size` | `int`   | 传输数据包大小。                                      |
+| `payload_size`   | `int`   | 数据包有效载荷大小。                                  |
+| `src_ip`         | `str`   | 源IP地址字符串表示。                                  |
+| `src_mac`        | `str`   | 源MAC地址字符串表示。                                 |
+| `src_oui`        | `str`   | 源组织唯一标识符字符串表示。                          |
+| `dst_ip`         | `str`   | 目标IP地址字符串表示。                                |
+| `dst_mac`        | `str`   | 目标MAC地址字符串表示。                               |
+| `dst_oui`        | `str`   | 目标组织上唯一的标识符字符串表示。                    |
+| `src_port`       | `int`   | 传输层源端口。                                        |
+| `dst_port`       | `int`   | 传输层目标端口。                                      |
+| `protocol`       | `int`   | 传输层协议。                                          |
+| `vlan_id`        | `int`   | 虚拟局域网标识符。                                    |
+| `ip_version`     | `int`   | IP版本。                                              |
+| `ip_packet`      | `bytes` | 从IP头开始的原始内容。                                |
+| `direction`      | `int`   | 数据包方向：src_to_dst为0，dst_to_src为1。            |
+| `syn`            | `bool`  | 存在TCP SYN标志。                                     |
+| `cwr`            | `bool`  | TCP CWR旗标存在。                                     |
+| `ece`            | `bool`  | 存在TCP ECE旗帜。                                     |
+| `urg`            | `bool`  | 存在TCP URG旗帜。                                     |
+| `ack`            | `bool`  | TCP ACK标志存在。                                     |
+| `psh`            | `bool`  | TCP PSH标志在场。                                     |
+| `rst`            | `bool`  | 存在TCP RST标志。                                     |
+| `fin`            | `bool`  | TCP FIN旗标现。                                       |
+| `tunnel_id`      | `int`   | 隧道标识符（O：无隧道，1：GTP，2：CAPWAP，3：TZSP）。 |
+
 ### NFPlugin
+
+NFPlugin是NFStream框架中用于用户自定义拓展功能的类，用户要增加自定义特征必须要集成该类。NFPlugin类原型如下：
+
+~~~python
+class NFPlugin(object):
+    """ NFPlugin class: Main entry point to extend NFStream """
+    def __init__(self, **kwargs):
+        """
+        NFPlugin Parameters:
+        kwargs : user defined named arguments that will be stored as Plugin attributes
+        """
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def on_init(self, packet, flow):
+        """
+        on_init(self, packet, flow): Method called at flow creation.
+        You must initiate your udps values if you plan to compute ones.
+        Example: -------------------------------------------------------
+                 flow.udps.magic_message = "NO"
+                 if packet.raw_size == 40:
+                    flow.udps.packet_40_count = 1
+                 else:
+                    flow.udps.packet_40_count = 0
+        ----------------------------------------------------------------
+        """
+
+    def on_update(self, packet, flow):
+        """
+        on_update(self, packet, flow): Method called to update each flow 
+                                       with its belonging packet.
+        Example: -------------------------------------------------------
+                 if packet.raw_size == 40:
+                    flow.udps.packet_40_count += 1
+        ----------------------------------------------------------------
+        """
+
+    def on_expire(self, flow):
+        """
+        on_expire(self, flow):      Method called at flow expiration.
+        Example: -------------------------------------------------------
+                 if flow.udps.packet_40_count >= 10:
+                    flow.udps.magic_message = "YES"
+        ----------------------------------------------------------------
+        """
+        pass
+
+    def cleanup(self):
+        """
+        cleanup(self):               Method called for plugin cleanup.
+        Example: -------------------------------------------------------
+                 del self.large_dict_passed_as_plugin_attribute
+        ----------------------------------------------------------------
+        """
+~~~
+
+其中，on_updata和on_init函数中的packet和flow已经进行了对应。
+
+##### 实例
+
+下面模拟使用SFPlugin自定义添加SPLT统计特征的方法。
+
+~~~python
+from nfstream import NFStreamer, NFPlugin
+
+class SPLT(NFPlugin):
+    @staticmethod
+    def _get_packet_size(packet, accounting_mode):
+        if accounting_mode == 0:
+            return packet.raw_size
+        elif accounting_mode == 1:
+            return packet.ip_size
+        elif accounting_mode == 2:
+            return packet.transport_size
+        else:
+            return packet.payload_size
+
+    def on_init(self, packet, flow):
+        flow.udps.splt_direction = [-1] * self.sequence_length
+        flow.udps.splt_direction[0] = 0  # First packet so  src->dst
+        flow.udps.splt_ps = [-1] * self.sequence_length
+        flow.udps.splt_ps[0] = self._get_packet_size(packet, self.accouncting_mode)
+        flow.udps.splt_piat_ms = [-1] * self.sequence_length
+        flow.udps.splt_piat_ms[0] = packet.delta_time
+
+    def on_update(self, packet, flow):
+        if flow.bidirectional_packets <= self.sequence_length:
+            packet_index = flow.bidirectional_packets - 1
+            flow.udps.splt_direction[packet_index] = packet.direction
+            flow.udps.splt_ps[packet_index] = self._get_packet_size(packet, self.accounting_mode)
+            flow.udps.splt_piat_ms[packet_index] = packet.delta_time
+
+streamer = NFStreamer(analysis_pcap, udps=SPLT(sequence_length=7, accouncting_mode=1))
+for flow in streamer: # Work also with to_pandas, to_csv
+   print(flow.udps.splt_direction)
+~~~
+
+关键点：
+
+1. 集成NFPlugin类创造用户自定义功能的类
+
+2. 在NFStream中的udps中引入自定义SPLT类
+
+   > 其中udps中导入SPLT导入的` sequence_length`和`accouncting_mode`可以在类内通过self.直接调用
+
+
+
+### 实时预测
+
+NFStream一个非常好的功能就是可以将训练好的模型融入流量分析程序中，在流量解析的同时进行实时的预测。
+
+下面是一个实例，使用NFPlugin自定义ModelPrediction中设置如果一个flow完成，则立即使用训练好的模型进行预测，而不用等待全部flow提取完成后进行预测。
+
+~~~python
+import numpy
+
+class ModelPrediction(NFPlugin):
+    def on_init(self, packet, flow):
+        flow.udps.model_prediction = 0
+    def on_expire(self, flow):
+        to_predict = numpy.array([flow.bidirectional_packets,
+                                  flow.bidirectional_bytes]).reshape((1,-1))
+        flow.udps.model_prediction = self.my_model.predict(to_predict)
+
+ml_streamer = NFStreamer(source="eth0", udps=ModelPrediction(my_model=model))
+for flow in ml_streamer:
+    print(flow.udps.model_prediction)
+~~~
 

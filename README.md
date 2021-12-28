@@ -47,7 +47,7 @@
 
    由加拿大安全研究所提出的一种flow特征提取框架，能够提取80余种特征，本身由java编写，也有python版本，但是python版本bug较多。
 
-2. #### NFStream
+2. #### [NFStream](./tools/NFStream.md)
 
    一个灵活的网络流量分析框架，比CICFlowMeter更加灵活，好用，默认支持，并可以支持使用NFPlugin。
 
