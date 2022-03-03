@@ -18,9 +18,9 @@ $ tcpdump -i eth0 -nn -s0 -v port 80
 
 额外再介绍几个常用参数：
 
-- **-p** : 不让网络接口进入混杂模式。**默认情况下使用 tcpdump 抓包时，会让网络接口进入混杂模式**。一般计算机网卡都工作在非混杂模式下，此时网卡只接受来自网络端口的目的地址指向自己的数据。当网卡工作在混杂模式下时，网卡将来自接口的所有数据都捕获并交给相应的驱动程序。如果设备接入的交换机开启了混杂模式，使用 `-p` 选项可以有效地过滤噪声。
+- **-p** : 不让网络接口进入混杂模式。**默认情况下使用 tcpdump 抓包时，会让网络接口进入混杂模式**。如果设备接入的交换机开启了混杂模式，使用 `-p` 选项可以有效地过滤噪声。
 
-  > 这里与tcpflow不同，tcpflow默认不使用混杂模式。
+  > 混在模式：当网卡工作在混杂模式下时，网卡将来自接口的所有数据都捕获并交给相应的驱动程序。一般计算机网卡都工作在非混杂模式下，此时网卡只接受来自网络端口的目的地址指向自己的数据。
 
 - **-e** : 显示数据链路层信息。默认情况下 tcpdump 不会显示数据链路层信息，使用 `-e` 选项可以显示源和目的 MAC 地址，以及 VLAN tag 信息。
 
@@ -101,15 +101,25 @@ tcpdump 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) !
 
 抓取标准使用53端口的DNS数据包：
 
+~~~shell
+tcpdump port 53 -s 0 -l -i utun3
+~~~
+
 ![image](https://raw.githubusercontent.com/AnchoretY/images/master/blog/image.ivmlir1c92n.png)
 
 
 
-#### 应用层协议内容填补
+#### 提取 HTTP 请求的 URL
 
+提取 HTTP 请求的主机名和路径：
 
+```shell
+tcpdump -s 0 -v -n -l -i en0| egrep -i "POST /|GET /|Host:"
+```
 
+![image](https://raw.githubusercontent.com/AnchoretY/images/master/blog/image.9xwtskjb2fa.png)
 
 
 【参考文献】
 
+- https://juejin.cn/post/6844904084168769549
